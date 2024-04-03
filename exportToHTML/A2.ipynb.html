@@ -1,0 +1,224 @@
+<html>
+<head>
+<title>A2.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #bcbec4;}
+.s4 { color: #5f826b; font-style: italic;}
+.s5 { color: #2aacb8;}
+.s6 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+A2.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% 
+# 1. Erdös-Rényi (ER) G(N, p) Model</span>
+
+<span class="s0"># import libraries</span>
+<span class="s2">import </span><span class="s1">random</span>
+<span class="s2">import </span><span class="s1">matplotlib</span><span class="s3">.</span><span class="s1">pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">import </span><span class="s1">scipy</span>
+
+
+<span class="s0"># generate ER network G(N, p)</span>
+<span class="s2">def </span><span class="s1">generate_er_network_gnp</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">p</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot; 
+    Generates an Erdös-Rényi network G(N, p). 
+     
+    Parameters: 
+        N (int): Number of nodes. 
+        p (float): Probability of adding an edge between two distinct nodes. 
+     
+    Returns: 
+        List[Tuple[int, int]]: List of edges in the network. 
+    &quot;&quot;&quot;</span>
+    <span class="s1">edges </span><span class="s3">= [(</span><span class="s1">i</span><span class="s3">, </span><span class="s1">j</span><span class="s3">) </span><span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">N</span><span class="s3">) </span><span class="s2">for </span><span class="s1">j </span><span class="s2">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">i </span><span class="s3">+ </span><span class="s5">1</span><span class="s3">, </span><span class="s1">N</span><span class="s3">) </span><span class="s2">if </span><span class="s1">random</span><span class="s3">.</span><span class="s1">random</span><span class="s3">() &lt; </span><span class="s1">p</span><span class="s3">]</span>
+    <span class="s2">return </span><span class="s1">edges</span>
+
+<span class="s0"># plot degree distribution of ER network</span>
+<span class="s2">def </span><span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">edges</span><span class="s3">, </span><span class="s1">N</span><span class="s3">, </span><span class="s1">expected_k</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot; 
+    Plots the degree distribution of a network and annotates the actual average degree. 
+     
+    Parameters: 
+        edges (List[Tuple[int, int]]): List of edges in the network. 
+        N (int): Number of nodes. 
+        expected_k (float): Expected average degree &lt;k&gt;. 
+    &quot;&quot;&quot;</span>
+    <span class="s1">degrees </span><span class="s3">= </span><span class="s1">np</span><span class="s3">.</span><span class="s1">zeros</span><span class="s3">(</span><span class="s1">N</span><span class="s3">)</span>
+    <span class="s2">for </span><span class="s1">edge </span><span class="s2">in </span><span class="s1">edges</span><span class="s3">:</span>
+        <span class="s1">degrees</span><span class="s3">[</span><span class="s1">edge</span><span class="s3">[</span><span class="s5">0</span><span class="s3">]] += </span><span class="s5">1</span>
+        <span class="s1">degrees</span><span class="s3">[</span><span class="s1">edge</span><span class="s3">[</span><span class="s5">1</span><span class="s3">]] += </span><span class="s5">1</span>
+    
+    <span class="s1">actual_k </span><span class="s3">= </span><span class="s1">np</span><span class="s3">.</span><span class="s1">mean</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">)</span>
+    
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">hist</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">, </span><span class="s1">bins</span><span class="s3">=</span><span class="s1">range</span><span class="s3">(</span><span class="s1">int</span><span class="s3">(</span><span class="s1">max</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">)) + </span><span class="s5">1</span><span class="s3">), </span><span class="s1">density</span><span class="s3">=</span><span class="s2">True</span><span class="s3">, </span><span class="s1">edgecolor</span><span class="s3">=</span><span class="s6">'black'</span><span class="s3">, </span><span class="s1">alpha</span><span class="s3">=</span><span class="s5">0.7</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">title</span><span class="s3">(</span><span class="s6">f'ER Network Degree Distribution</span><span class="s2">\n</span><span class="s6">N=</span><span class="s2">{</span><span class="s1">N</span><span class="s2">}</span><span class="s6">, Expected &lt;k&gt;=</span><span class="s2">{</span><span class="s1">expected_k</span><span class="s2">:</span><span class="s6">.2f</span><span class="s2">}</span><span class="s6">, Actual &lt;k&gt;=</span><span class="s2">{</span><span class="s1">actual_k</span><span class="s2">:</span><span class="s6">.2f</span><span class="s2">}</span><span class="s6">'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">xlabel</span><span class="s3">(</span><span class="s6">'Degree'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">ylabel</span><span class="s3">(</span><span class="s6">'Frequency'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">yscale</span><span class="s3">(</span><span class="s6">'log'</span><span class="s3">, </span><span class="s1">nonpositive</span><span class="s3">=</span><span class="s6">'clip'</span><span class="s3">)  </span><span class="s0"># Use log scale for better visibility</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">show</span><span class="s3">()</span>
+
+
+<span class="s1">Ns </span><span class="s3">= [</span><span class="s5">1000</span><span class="s3">, </span><span class="s5">10000</span><span class="s3">]  </span><span class="s0"># Network sizes</span>
+<span class="s1">k_values </span><span class="s3">= [</span><span class="s5">3</span><span class="s3">, </span><span class="s5">6</span><span class="s3">, </span><span class="s5">10</span><span class="s3">]  </span><span class="s0"># Desired average degrees</span>
+
+<span class="s0"># Generate ER networks and plot degree distributions</span>
+<span class="s2">for </span><span class="s1">N </span><span class="s2">in </span><span class="s1">Ns</span><span class="s3">:</span>
+    <span class="s2">for </span><span class="s1">k </span><span class="s2">in </span><span class="s1">k_values</span><span class="s3">:</span>
+        <span class="s1">p </span><span class="s3">= </span><span class="s1">k </span><span class="s3">/ (</span><span class="s1">N </span><span class="s3">- </span><span class="s5">1</span><span class="s3">)  </span><span class="s0"># Calculate probability for desired &lt;k&gt;</span>
+        <span class="s1">edges </span><span class="s3">= </span><span class="s1">generate_er_network_gnp</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">p</span><span class="s3">)</span>
+        <span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">edges</span><span class="s3">, </span><span class="s1">N</span><span class="s3">, </span><span class="s1">k</span><span class="s3">)  </span><span class="s0"># Pass expected &lt;k&gt; for annotation</span>
+        
+<span class="s0"># Save each plot as a PNG file (and all other plots)</span>
+<span class="s1">plt</span><span class="s3">.</span><span class="s1">savefig</span><span class="s3">(</span><span class="s6">'ER_network_degree_distribution.png'</span><span class="s3">)   </span>
+    
+            
+<span class="s0">#%% 
+</span><span class="s2">import </span><span class="s1">matplotlib</span><span class="s3">.</span><span class="s1">pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">networkx </span><span class="s2">as </span><span class="s1">nx</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">import </span><span class="s1">random</span>
+
+<span class="s2">def </span><span class="s1">generate_ws_network</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">k</span><span class="s3">, </span><span class="s1">p</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot;Generates a Watts-Strogatz small-world network.&quot;&quot;&quot;</span>
+    <span class="s1">G </span><span class="s3">= </span><span class="s1">nx</span><span class="s3">.</span><span class="s1">Graph</span><span class="s3">()</span>
+    <span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">N</span><span class="s3">):</span>
+        <span class="s2">for </span><span class="s1">j </span><span class="s2">in </span><span class="s1">range</span><span class="s3">(</span><span class="s5">1</span><span class="s3">, </span><span class="s1">k </span><span class="s3">// </span><span class="s5">2 </span><span class="s3">+ </span><span class="s5">1</span><span class="s3">):</span>
+            <span class="s1">G</span><span class="s3">.</span><span class="s1">add_edge</span><span class="s3">(</span><span class="s1">i</span><span class="s3">, (</span><span class="s1">i </span><span class="s3">+ </span><span class="s1">j</span><span class="s3">) % </span><span class="s1">N</span><span class="s3">)</span>
+            <span class="s1">G</span><span class="s3">.</span><span class="s1">add_edge</span><span class="s3">(</span><span class="s1">i</span><span class="s3">, (</span><span class="s1">i </span><span class="s3">- </span><span class="s1">j </span><span class="s3">+ </span><span class="s1">N</span><span class="s3">) % </span><span class="s1">N</span><span class="s3">)</span>
+    <span class="s2">for </span><span class="s1">edge </span><span class="s2">in </span><span class="s1">list</span><span class="s3">(</span><span class="s1">G</span><span class="s3">.</span><span class="s1">edges</span><span class="s3">()):</span>
+        <span class="s2">if </span><span class="s1">random</span><span class="s3">.</span><span class="s1">random</span><span class="s3">() &lt; </span><span class="s1">p</span><span class="s3">:</span>
+            <span class="s1">u</span><span class="s3">, </span><span class="s1">v </span><span class="s3">= </span><span class="s1">edge</span>
+            <span class="s1">G</span><span class="s3">.</span><span class="s1">remove_edge</span><span class="s3">(</span><span class="s1">u</span><span class="s3">, </span><span class="s1">v</span><span class="s3">)</span>
+            <span class="s1">w </span><span class="s3">= </span><span class="s1">random</span><span class="s3">.</span><span class="s1">choice</span><span class="s3">(</span><span class="s1">list</span><span class="s3">(</span><span class="s1">set</span><span class="s3">(</span><span class="s1">range</span><span class="s3">(</span><span class="s1">N</span><span class="s3">)) - {</span><span class="s1">u</span><span class="s3">} - </span><span class="s1">set</span><span class="s3">(</span><span class="s1">G</span><span class="s3">.</span><span class="s1">neighbors</span><span class="s3">(</span><span class="s1">u</span><span class="s3">))))</span>
+            <span class="s1">G</span><span class="s3">.</span><span class="s1">add_edge</span><span class="s3">(</span><span class="s1">u</span><span class="s3">, </span><span class="s1">w</span><span class="s3">)</span>
+    <span class="s2">return </span><span class="s1">G</span>
+
+<span class="s2">def </span><span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G</span><span class="s3">, </span><span class="s1">title</span><span class="s3">):</span>
+    <span class="s1">degrees </span><span class="s3">= [</span><span class="s1">G</span><span class="s3">.</span><span class="s1">degree</span><span class="s3">(</span><span class="s1">n</span><span class="s3">) </span><span class="s2">for </span><span class="s1">n </span><span class="s2">in </span><span class="s1">G</span><span class="s3">.</span><span class="s1">nodes</span><span class="s3">()]</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">hist</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">, </span><span class="s1">bins</span><span class="s3">=</span><span class="s6">'auto'</span><span class="s3">, </span><span class="s1">density</span><span class="s3">=</span><span class="s2">True</span><span class="s3">, </span><span class="s1">alpha</span><span class="s3">=</span><span class="s5">0.75</span><span class="s3">, </span><span class="s1">edgecolor</span><span class="s3">=</span><span class="s6">'black'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">title</span><span class="s3">(</span><span class="s1">title</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">xlabel</span><span class="s3">(</span><span class="s6">'Degree'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">ylabel</span><span class="s3">(</span><span class="s6">'Probability Density'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">show</span><span class="s3">()</span>
+
+<span class="s0"># Example usage for N=10000</span>
+<span class="s1">N </span><span class="s3">= </span><span class="s5">10000</span>
+<span class="s1">k </span><span class="s3">= </span><span class="s5">6  </span><span class="s0"># Initial degree</span>
+<span class="s1">p_values </span><span class="s3">= [</span><span class="s5">0.01</span><span class="s3">, </span><span class="s5">0.1</span><span class="s3">, </span><span class="s5">0.5</span><span class="s3">]  </span><span class="s0"># Example rewiring probabilities</span>
+
+<span class="s2">for </span><span class="s1">p </span><span class="s2">in </span><span class="s1">p_values</span><span class="s3">:</span>
+    <span class="s1">G </span><span class="s3">= </span><span class="s1">generate_ws_network</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">k</span><span class="s3">, </span><span class="s1">p</span><span class="s3">)</span>
+    <span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G</span><span class="s3">, </span><span class="s6">f&quot;WS Model N=</span><span class="s2">{</span><span class="s1">N</span><span class="s2">}</span><span class="s6">, k=</span><span class="s2">{</span><span class="s1">k</span><span class="s2">}</span><span class="s6">, p=</span><span class="s2">{</span><span class="s1">p</span><span class="s2">}</span><span class="s6">&quot;</span><span class="s3">)</span>
+
+<span class="s0">#%% 
+# 3. Barabási-Albert (BA) Model</span>
+<span class="s2">import </span><span class="s1">matplotlib</span><span class="s3">.</span><span class="s1">pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">networkx </span><span class="s2">as </span><span class="s1">nx</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">import </span><span class="s1">random</span>
+
+<span class="s2">def </span><span class="s1">generate_ba_network</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">m</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot;Generates a Barabási-Albert network.&quot;&quot;&quot;</span>
+    <span class="s1">G </span><span class="s3">= </span><span class="s1">nx</span><span class="s3">.</span><span class="s1">Graph</span><span class="s3">()</span>
+    <span class="s1">G</span><span class="s3">.</span><span class="s1">add_nodes_from</span><span class="s3">(</span><span class="s1">range</span><span class="s3">(</span><span class="s1">m</span><span class="s3">))</span>
+    <span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range</span><span class="s3">(</span><span class="s1">m</span><span class="s3">, </span><span class="s1">N</span><span class="s3">):</span>
+        <span class="s1">targets </span><span class="s3">= </span><span class="s1">set</span><span class="s3">()</span>
+        <span class="s2">while </span><span class="s1">len</span><span class="s3">(</span><span class="s1">targets</span><span class="s3">) &lt; </span><span class="s1">m</span><span class="s3">:</span>
+            <span class="s1">node </span><span class="s3">= </span><span class="s1">random</span><span class="s3">.</span><span class="s1">choice</span><span class="s3">(</span><span class="s1">tuple</span><span class="s3">(</span><span class="s1">G</span><span class="s3">.</span><span class="s1">nodes</span><span class="s3">))</span>
+            <span class="s2">if </span><span class="s1">node </span><span class="s2">not in </span><span class="s1">targets</span><span class="s3">:</span>
+                <span class="s1">targets</span><span class="s3">.</span><span class="s1">add</span><span class="s3">(</span><span class="s1">node</span><span class="s3">)</span>
+        <span class="s1">G</span><span class="s3">.</span><span class="s1">add_node</span><span class="s3">(</span><span class="s1">i</span><span class="s3">)</span>
+        <span class="s2">for </span><span class="s1">target </span><span class="s2">in </span><span class="s1">targets</span><span class="s3">:</span>
+            <span class="s1">G</span><span class="s3">.</span><span class="s1">add_edge</span><span class="s3">(</span><span class="s1">i</span><span class="s3">, </span><span class="s1">target</span><span class="s3">)</span>
+    <span class="s2">return </span><span class="s1">G</span>
+
+<span class="s2">def </span><span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G</span><span class="s3">, </span><span class="s1">title</span><span class="s3">):</span>
+    <span class="s1">degrees </span><span class="s3">= [</span><span class="s1">G</span><span class="s3">.</span><span class="s1">degree</span><span class="s3">(</span><span class="s1">n</span><span class="s3">) </span><span class="s2">for </span><span class="s1">n </span><span class="s2">in </span><span class="s1">G</span><span class="s3">.</span><span class="s1">nodes</span><span class="s3">()]</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">hist</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">, </span><span class="s1">bins</span><span class="s3">=</span><span class="s1">np</span><span class="s3">.</span><span class="s1">logspace</span><span class="s3">(</span><span class="s1">np</span><span class="s3">.</span><span class="s1">log10</span><span class="s3">(</span><span class="s1">min</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">)), </span><span class="s1">np</span><span class="s3">.</span><span class="s1">log10</span><span class="s3">(</span><span class="s1">max</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">)), </span><span class="s5">50</span><span class="s3">), </span><span class="s1">density</span><span class="s3">=</span><span class="s2">True</span><span class="s3">, </span><span class="s1">alpha</span><span class="s3">=</span><span class="s5">0.75</span><span class="s3">, </span><span class="s1">edgecolor</span><span class="s3">=</span><span class="s6">'black'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">xscale</span><span class="s3">(</span><span class="s6">'log'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">yscale</span><span class="s3">(</span><span class="s6">'log'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">title</span><span class="s3">(</span><span class="s1">title</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">xlabel</span><span class="s3">(</span><span class="s6">'Degree'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">ylabel</span><span class="s3">(</span><span class="s6">'Probability Density'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">show</span><span class="s3">()</span>
+
+<span class="s0"># Example usage for N=10000</span>
+<span class="s1">N </span><span class="s3">= </span><span class="s5">10000</span>
+<span class="s1">m </span><span class="s3">= </span><span class="s5">5  </span><span class="s0"># Number of edges to attach from a new node to existing nodes</span>
+
+<span class="s1">G_ba </span><span class="s3">= </span><span class="s1">generate_ba_network</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">m</span><span class="s3">)</span>
+<span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G_ba</span><span class="s3">, </span><span class="s6">f&quot;BA Model N=</span><span class="s2">{</span><span class="s1">N</span><span class="s2">}</span><span class="s6">, m=</span><span class="s2">{</span><span class="s1">m</span><span class="s2">}</span><span class="s6">&quot;</span><span class="s3">)</span>
+
+<span class="s0">#%% 
+# 4. Configuration Model</span>
+
+<span class="s2">import </span><span class="s1">matplotlib</span><span class="s3">.</span><span class="s1">pyplot </span><span class="s2">as </span><span class="s1">plt</span>
+<span class="s2">import </span><span class="s1">networkx </span><span class="s2">as </span><span class="s1">nx</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+
+<span class="s2">def </span><span class="s1">generate_degree_sequence</span><span class="s3">(</span><span class="s1">N</span><span class="s3">, </span><span class="s1">exponent</span><span class="s3">=</span><span class="s5">3.0</span><span class="s3">, </span><span class="s1">min_degree</span><span class="s3">=</span><span class="s5">2</span><span class="s3">, </span><span class="s1">max_degree</span><span class="s3">=</span><span class="s2">None</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot;Generates a degree sequence following a power-law distribution.&quot;&quot;&quot;</span>
+    <span class="s2">if </span><span class="s1">max_degree </span><span class="s2">is None</span><span class="s3">:</span>
+        <span class="s1">max_degree </span><span class="s3">= </span><span class="s1">N </span><span class="s3">// </span><span class="s5">2</span>
+    <span class="s1">sequence </span><span class="s3">= </span><span class="s1">np</span><span class="s3">.</span><span class="s1">random</span><span class="s3">.</span><span class="s1">zipf</span><span class="s3">(</span><span class="s1">a</span><span class="s3">=</span><span class="s1">exponent</span><span class="s3">, </span><span class="s1">size</span><span class="s3">=</span><span class="s1">N</span><span class="s3">) + (</span><span class="s1">min_degree </span><span class="s3">- </span><span class="s5">1</span><span class="s3">)</span>
+    <span class="s1">sequence </span><span class="s3">= </span><span class="s1">np</span><span class="s3">.</span><span class="s1">clip</span><span class="s3">(</span><span class="s1">sequence</span><span class="s3">, </span><span class="s1">min_degree</span><span class="s3">, </span><span class="s1">max_degree</span><span class="s3">)</span>
+    <span class="s2">if </span><span class="s1">sum</span><span class="s3">(</span><span class="s1">sequence</span><span class="s3">) % </span><span class="s5">2 </span><span class="s3">!= </span><span class="s5">0</span><span class="s3">:</span>
+        <span class="s1">sequence</span><span class="s3">[</span><span class="s1">np</span><span class="s3">.</span><span class="s1">argmax</span><span class="s3">(</span><span class="s1">sequence</span><span class="s3">)] -= </span><span class="s5">1  </span><span class="s0"># Ensure even sum of degrees</span>
+    <span class="s2">return </span><span class="s1">sequence</span>
+
+<span class="s2">def </span><span class="s1">configuration_model</span><span class="s3">(</span><span class="s1">degree_sequence</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot;Generates a network using the Configuration Model.&quot;&quot;&quot;</span>
+    <span class="s1">G </span><span class="s3">= </span><span class="s1">nx</span><span class="s3">.</span><span class="s1">configuration_model</span><span class="s3">(</span><span class="s1">degree_sequence</span><span class="s3">)</span>
+    <span class="s1">G </span><span class="s3">= </span><span class="s1">nx</span><span class="s3">.</span><span class="s1">Graph</span><span class="s3">(</span><span class="s1">G</span><span class="s3">)  </span><span class="s0"># Convert to simple graph, removing parallel edges/self-loops</span>
+    <span class="s1">G</span><span class="s3">.</span><span class="s1">remove_edges_from</span><span class="s3">(</span><span class="s1">nx</span><span class="s3">.</span><span class="s1">selfloop_edges</span><span class="s3">(</span><span class="s1">G</span><span class="s3">))</span>
+    <span class="s2">return </span><span class="s1">G</span>
+
+<span class="s2">def </span><span class="s1">visualize_network</span><span class="s3">(</span><span class="s1">G</span><span class="s3">, </span><span class="s1">title</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot;Visualizes the network.&quot;&quot;&quot;</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">figure</span><span class="s3">(</span><span class="s1">figsize</span><span class="s3">=(</span><span class="s5">8</span><span class="s3">, </span><span class="s5">8</span><span class="s3">))</span>
+    <span class="s1">pos </span><span class="s3">= </span><span class="s1">nx</span><span class="s3">.</span><span class="s1">spring_layout</span><span class="s3">(</span><span class="s1">G</span><span class="s3">)</span>
+    <span class="s1">nx</span><span class="s3">.</span><span class="s1">draw</span><span class="s3">(</span><span class="s1">G</span><span class="s3">, </span><span class="s1">pos</span><span class="s3">, </span><span class="s1">node_size</span><span class="s3">=</span><span class="s5">20</span><span class="s3">, </span><span class="s1">edge_color</span><span class="s3">=</span><span class="s6">'gray'</span><span class="s3">, </span><span class="s1">with_labels</span><span class="s3">=</span><span class="s2">False</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">title</span><span class="s3">(</span><span class="s1">title</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">show</span><span class="s3">()</span>
+
+<span class="s2">def </span><span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G</span><span class="s3">, </span><span class="s1">title</span><span class="s3">):</span>
+    <span class="s4">&quot;&quot;&quot;Plots the degree distribution on a log-log scale.&quot;&quot;&quot;</span>
+    <span class="s1">degrees </span><span class="s3">= [</span><span class="s1">d </span><span class="s2">for </span><span class="s1">n</span><span class="s3">, </span><span class="s1">d </span><span class="s2">in </span><span class="s1">G</span><span class="s3">.</span><span class="s1">degree</span><span class="s3">()]</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">hist</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">, </span><span class="s1">bins</span><span class="s3">=</span><span class="s1">np</span><span class="s3">.</span><span class="s1">logspace</span><span class="s3">(</span><span class="s1">np</span><span class="s3">.</span><span class="s1">log10</span><span class="s3">(</span><span class="s1">min</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">)), </span><span class="s1">np</span><span class="s3">.</span><span class="s1">log10</span><span class="s3">(</span><span class="s1">max</span><span class="s3">(</span><span class="s1">degrees</span><span class="s3">)), </span><span class="s5">20</span><span class="s3">), </span><span class="s1">density</span><span class="s3">=</span><span class="s2">True</span><span class="s3">, </span><span class="s1">alpha</span><span class="s3">=</span><span class="s5">0.75</span><span class="s3">, </span><span class="s1">edgecolor</span><span class="s3">=</span><span class="s6">'black'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">xscale</span><span class="s3">(</span><span class="s6">'log'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">yscale</span><span class="s3">(</span><span class="s6">'log'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">title</span><span class="s3">(</span><span class="s1">title</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">xlabel</span><span class="s3">(</span><span class="s6">'Degree'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">ylabel</span><span class="s3">(</span><span class="s6">'Probability Density'</span><span class="s3">)</span>
+    <span class="s1">plt</span><span class="s3">.</span><span class="s1">show</span><span class="s3">()</span>
+
+<span class="s0"># Example Usage</span>
+<span class="s1">N_small</span><span class="s3">, </span><span class="s1">N_large </span><span class="s3">= </span><span class="s5">100</span><span class="s3">, </span><span class="s5">1000</span>
+<span class="s1">exponent </span><span class="s3">= </span><span class="s5">2.5</span>
+
+<span class="s0"># Small Network</span>
+<span class="s1">degree_sequence_small </span><span class="s3">= </span><span class="s1">generate_degree_sequence</span><span class="s3">(</span><span class="s1">N_small</span><span class="s3">, </span><span class="s1">exponent</span><span class="s3">)</span>
+<span class="s1">G_small </span><span class="s3">= </span><span class="s1">configuration_model</span><span class="s3">(</span><span class="s1">degree_sequence_small</span><span class="s3">)</span>
+<span class="s1">visualize_network</span><span class="s3">(</span><span class="s1">G_small</span><span class="s3">, </span><span class="s6">&quot;Small Configuration Model Network&quot;</span><span class="s3">)</span>
+<span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G_small</span><span class="s3">, </span><span class="s6">&quot;Small Configuration Model Network Degree Distribution&quot;</span><span class="s3">)</span>
+
+<span class="s0"># Large Network</span>
+<span class="s1">degree_sequence_large </span><span class="s3">= </span><span class="s1">generate_degree_sequence</span><span class="s3">(</span><span class="s1">N_large</span><span class="s3">, </span><span class="s1">exponent</span><span class="s3">)</span>
+<span class="s1">G_large </span><span class="s3">= </span><span class="s1">configuration_model</span><span class="s3">(</span><span class="s1">degree_sequence_large</span><span class="s3">)</span>
+<span class="s1">visualize_network</span><span class="s3">(</span><span class="s1">G_large</span><span class="s3">, </span><span class="s6">&quot;Large Configuration Model Network&quot;</span><span class="s3">)</span>
+<span class="s1">plot_degree_distribution</span><span class="s3">(</span><span class="s1">G_large</span><span class="s3">, </span><span class="s6">&quot;Large Configuration Model Network Degree Distribution&quot;</span><span class="s3">)</span>
+
+<span class="s0">#%% 
+</span></pre>
+</body>
+</html>
